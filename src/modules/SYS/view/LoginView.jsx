@@ -1,4 +1,4 @@
-import useLoginViewModel from '../viewModel/loginViewModel';
+import useLoginViewModel from '../viewModel/LoginViewModel';
 
 const LoginView = () => {
     const {email, setEmail, password, setPassword, error, cargando, iniciarSesion } = useLoginViewModel();
