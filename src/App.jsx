@@ -5,7 +5,7 @@ import './App.css';
 
 function App() {
   const loginGoogle = () => {
-    window.location.href = "http://localhost:9000/oauth2/authorization/google";
+    window.location.href = "https://ss-gw.onrender.com/oauth2/authorization/google";
   };
 
   const path = window.location.pathname;

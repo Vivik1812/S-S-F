@@ -83,6 +83,6 @@ export default function HomeView(){
             </section>
             <Footer />
         </div>
-
+    )
 }
 
