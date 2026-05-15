@@ -1,17 +1,17 @@
 export default function Footer() {
     return (
         <footer className="footer">
-            <div classname= "footer-inner">
+            <div className= "footer-inner">
                 <div className= "footer-brand">
-                    <div classname= "footer-logo">
+                    <div className= "footer-logo">
                         <svg>Aqui falta icono</svg>                        <div>
                             <div className="footer-brand-name">Sanos y Salvos</div>
                             <div className="footer-brand-tagline">NoseQuePonerAqui</div>
                         </div>
                     </div>
                 </div>
-                <p classname= "footer-description">Plataforma colaborativa para ayudar a mascotas perdidas</p>
-                <div classname= "footer-links">
+                <p className= "footer-description">Plataforma colaborativa para ayudar a mascotas perdidas</p>
+                <div className= "footer-links">
                     <a href="#" aria-label= "Facebook">
                         <svg>Aqui falta icono</svg>
                     </a>

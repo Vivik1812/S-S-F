@@ -1,4 +1,4 @@
-export default class MotorCoincidencia {
+{/*export default class MotorCoincidencia {
     static calcularCoincidencia(postPerdido, postEncontrado) {
         let NvlCoincidencia = 0;
 
@@ -28,3 +28,4 @@ export default class MotorCoincidencia {
         return NvlCoincidencia;
     }
 }
+*/}

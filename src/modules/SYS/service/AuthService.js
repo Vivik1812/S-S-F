@@ -1,37 +1,35 @@
-const API_URL = 'http://localhost:8080/api/auth/';
+import apiGW from "./ApiGateway";
 
-const AuthService = {
-    login: async (email, password) => {
-        const response = await fetch(`${API_URL}/login`, {
-            method: 'POST' ,
-            headers: {
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        })
+const API_URL = import.meta.env.VITE_API_GW;
 
-        if (!response.ok) {
-            throw new Error('Credenciales Incorrectas')
-        }
+export const loginWithGoogle = () => {
+  window.location.href = `${API_URL}/oauth2/authorization/google`;
+};
 
-        const data = await response.json()
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('usuario', JSON.stringify(data.usuario))
-        return data
-    },
+export const obtenerToken = () => {
+  return localStorage.getItem("token");
+};
 
-    logout: () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('usuario')
-    },
+export const guardarToken = (token) => {
+  localStorage.setItem("token", token);
+};
 
-    getToken: () => {
-        return localStorage.getItem('token')
-    },
+export const cerrarSesion = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+};
 
-    isAutenticado: () => {
-        return localStorage.getItem('token') !== null
-    }
+export const Autenticado = () => {
+  return !!obtenerToken();
+};
+
+export const obtenerUsuarioActual = async () => {
+  const respuesta = await apiGW.get("/api/v1/usuarios/me");
+
+  return respuesta.data;
+};
+
+export const actualizarPerfil = async (datos) => {
+  const res = await apiGW.put("/api/v1/usuarios/completar/perfil", datos);
+  return res.data;
 }
-
-export default AuthService

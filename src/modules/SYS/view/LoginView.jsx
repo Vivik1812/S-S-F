@@ -1,46 +1,43 @@
-import useLoginViewModel from '../viewmodel/LoginViewModel';
+import { FaPaw } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { FiLock } from "react-icons/fi";
+import useLoginViewModel from "../viewmodel/LoginViewModel";
 
 const LoginView = () => {
-    const {email, setEmail, password, setPassword, error, cargando, iniciarSesion } = useLoginViewModel();
+  const { handleGoogleLogin } = useLoginViewModel();
 
-    return (
-        <div className='login-container'>
-            <div className='login-box'>
-                <h1>Sanos y Salvos</h1>
-                <h2>Iniciar Sesión</h2>
+  return (
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card shadow border-0 rounded-4">
+            <div className="card-body text-center p-5">
+              <FaPaw size={45} className="text-success mb-4" />
 
-                <form onSubmit={iniciarSesion}>
-                    <div className='form-group'>
-                        <label>Email</label>
-                        <input
-                            type='email'
-                            placeholder='Ingresa tu email'
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
+              <h3 className="fw-bold">Bienvenid@</h3>
 
-                    <div className='form-group'>
-                        <label>Contraseña</label>
-                        <input
-                            type='password'
-                            placeholder='Ingresa tu contraseña'
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+              <h1 className="text-success fw-bold mb-3">Sanos & Salvos</h1>
 
-                    {error && <p className='error-message'>{error}</p>}
+              <p className="text-muted mb-4">Acceso solo mediante Google</p>
 
-                    <button type='submit' disabled={cargando}>
-                        {cargando ? 'Cargando...' : 'Ingresar'}
-                    </button>
-                </form>
+              <button
+                className="btn btn-light border shadow-sm px-4 py-3 fw-bold"
+                onClick={handleGoogleLogin}
+              >
+                <FcGoogle size={24} className="me-2" />
+                Continuar con Google
+              </button>
+              
+              <div className="mt-4 text-muted">
+                <FiLock className="me-2"/>
+                Acceso seguro y privado
+              </div>
             </div>
+          </div>
         </div>
-    )
-}
+      </div>
+    </div>
+  );
+};
 
 export default LoginView;

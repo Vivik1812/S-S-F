@@ -1,57 +1,72 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import NotificacionCampana from './NotificacionCampana';
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaPaw } from "react-icons/fa";
+import { FiUser, FiPlus } from "react-icons/fi";
+import { Autenticado, cerrarSesion } from "../../service/AuthService";
 
-export default function Navbar({ variant }) {
-    const navigate = useNavigate();
-    const location = useLocation();
+export default function Navbar({ variant = "default" }) {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const isActive = (path) => location.pathname === path;
+  const autenticado = Autenticado();
 
-    if (variant === 'login') {
-        return (
-            <nav className="navbar--login">
-                <div className="navbar-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                    <BrandLogo />
-                </div>
-                <div className="nav-actions">
-                    <span className="nav-no-cuenta">No tengo cuenta</span>
-                    <button className="nav-registro-btn" onClick={() => navigate('/registro')}>Registrarse</button>
-                </div>
-            </nav>
-        );
-    }
+  const isActive = (path) => location.pathname === path;
 
-    return (
-        <nav className="navbar">
-            <div className="navbar-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                <BrandLogo />
-            </div>
-            <ul className="nav-links">
-                <li><a href="#" className={isActive('/') ? 'active' : ''} onClick={(e) => { e.preventDefault(); navigate('/'); }}>Inicio</a></li>
-                <li><a href="#" className={isActive('/perdidos') ? 'active' : ''} onClick={(e) => { e.preventDefault(); navigate('/buscar?estado=Perdido'); }}>Animales perdidos</a></li>
-                <li><a href="#" className={isActive('/encontrados') ? 'active' : ''} onClick={(e) => { e.preventDefault(); navigate('/buscar?estado=Encontrado'); }}>Animales encontrados</a></li>
-                <li><a href="#" className={isActive('/publicar') ? 'active' : ''} onClick={(e) => { e.preventDefault(); navigate('/publicar'); }}>Publicar aviso</a></li>
-            </ul>
-            <div className="nav-actions">
-                <NotificacionCampana />
-                <a href="#" className="btn-login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
-                    Mi cuenta
-                </a>
-                <button className="btn-publicar-nav" onClick={() => navigate('/publicar')}>
-                    Publicar aviso
-                </button>
-            </div>
-        </nav>
-    );
-}
+  const links = [
+    { name: "Inicio", path: "/" },
+  ];
 
-function BrandLogo() {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div>
-                <div className="brand-name">Sanos y Salvos</div>
-                <div className="brand-tagline">Unidos por ellos</div>
-            </div>
+  return (
+    <nav className="navbar bg-white shadow-sm px-4 py-3">
+      <div
+        className="d-flex aling-items-center gap-2"
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+      >
+        <FaPaw size={32} className="text-success" />
+        <div>
+          <h6 className="text-success fw-bold m-0">Sanos & Salvos</h6>
+          <small className="text-muted">Unidos por ellos</small>
         </div>
-    );
+      </div>
+
+      {variant === "default" && (
+        <>
+          <div className="d-flex gap-4">
+            {links.map((link) => (
+              <button
+                key={link.path}
+                className={`btn btn-link text-decoration-none ${location.pathname === link.path ? "text-success fw-bold" : "text-dark"}`}
+                onClick={() => navigate(link.path)}
+              >
+                {link.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      <div className="d-flex gap-2">
+        {!autenticado && (
+          <button className="btn" onClick={() => navigate("/login")}>
+            Iniciar Sesion
+          </button>
+        )}
+
+        {autenticado && (
+          <>
+            <button className="btn" onClick={() => navigate("/perfil")}>
+              Mi cuenta
+            </button>
+            <button
+              className="btn btn-success"
+              onClick={() => navigate("/publicar")}
+            >
+              <FiPlus className="me-2" />
+              Crear publicacion
+            </button>
+            <button className="btn btn-outline-danger" onClick={() => cerrarSesion()}>Cerrar Sesion</button> 
+          </>
+        )}
+      </div>
+    </nav>
+  );
 }
