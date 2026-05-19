@@ -11,7 +11,7 @@ const useAutenticacionViewModel = () =>{
 
         if(token){
             guardarToken(token);
-            navegar("/perfil", {replace: true});
+            navegar("/completar-perfil", {replace: true});
             return;
         }
 

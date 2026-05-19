@@ -44,7 +44,7 @@ const PerfilView = () => {
             <strong>Correo:</strong> {usuario.correo}
           </p>
           <p>
-            <strong>Telefono:</strong> {usuario.telefnoo || "No registrado"}
+            <strong>Telefono:</strong> {usuario.telefono || "No registrado"}
           </p>
           <p>
             <strong>RUT:</strong> {usuario.rut || "No registrado"}
