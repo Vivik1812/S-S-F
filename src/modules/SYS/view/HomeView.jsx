@@ -3,9 +3,48 @@ import {useNavigate} from 'react-router-dom';
 import Navbar from '../view/components/Navbar'
 import Footer from '../view/components/Footer';
 import useHomeViewModel from '../viewmodel/HomeViewModel';
+import MapView from './components/MapView';
 
 export default function HomeView(){
     useHomeViewModel();
+
+    return(
+        <div className='py-4'>
+            <section className='container text-center mb-4'>
+                <span className='badge rounded-pill text-bg-light border mb-3'>
+                    Sanos & Salvos
+                </span>
+
+                <h1 className='text-bg-light mb-3'>
+                    Encuentra mascotas perdidas cerca de ti.
+                </h1>
+
+                <p className='lead text-secondary mb-0'>
+                    Explora el mapa base de la plataforma para ubicar reportes de mascotas 
+                    perdidas y encontradas.
+                </p>
+            </section>
+            <MapView/>
+        </div>
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // const navigate = useNavigate();
     // const [publicaciones, setPublicaciones] = useState([]);
