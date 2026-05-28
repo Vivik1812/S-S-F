@@ -73,7 +73,7 @@ export default function Footer() {
             </h6>
             <ul className="list-unstyled">
                 <li className="mb-2 text-muted">
-                    Contacnos
+                    Contactanos
                 </li>
                 <li className="mb-2 text-muted">
                     sanosysalvos@ayuda.cl
@@ -103,7 +103,7 @@ export default function Footer() {
         </div>
         <hr className="my-4"/>
         <p className="text-center text-muted mb-0">
-            &copy; 2026 Sanos y Salvos. Todos los derechos revervador.
+            &copy; 2026 Sanos y Salvos. Todos los derechos revervados.
         </p>
       </div>
     </footer>

@@ -1,26 +1,27 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { obtenerUsuarioActual } from '../service/AuthService';
 import PublicacionService from '../service/PublicacionService';
 import { CENTRO_SANTIAGO } from './components/MapView';
 
 //Fix iconos 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconRetina: marketIcon2x,
+    iconRetinaUrl: markerIcon2x,
     iconUrl: markerIcon,
     shadowUrl: markerShadow,
 })
 
 //Componente para capturar clicks en el mapa
-function SeleccionarPunto({onPuntoseleccionado}){
+function SeleccionarPunto({onPuntoSeleccionado}){
     useMapEvents({
         click(e) {
-            onPuntoseleccionado([e.latlng.lat, e.latlng.lng]);
+            onPuntoSeleccionado([e.latlng.lat, e.latlng.lng]);
         },
     });
     return null;
@@ -29,36 +30,45 @@ function SeleccionarPunto({onPuntoseleccionado}){
 export default function CrearPublicacionView() {
     const navigate = useNavigate();
 
+    const [usuarioId, setUsuarioId] = useState(null);
+    useEffect(() => {
+        obtenerUsuarioActual()
+        .then(u => setUsuarioId(u.id))
+        .catch(() => setUsuarioId(null));
+    }, []);
     const [tipoPublicacion, setTipoPublicacion] = useState('');
-    const [tipoMascota, setTipoMascota] = useState('');
     const [fotos, setFotos] = useState([]);
     const [form, setForm] = useState({
-        nombre: '',
-        especie: '',
-        color: '',
-        raza: '',
-        sexo: '',
-        edad: '',
+        titulo: '',
         descripcion: '',
-        aceptaTerminos: false,
+    });
+    const[mascota, setMascota] = useState({
+        nombreMascota: '',
+        especie: '',
+        raza: '',
+        color: '',
+        sexo: '',
+        tamanio: '',
     });
 
     //ubicacion en mapa
     const [puntoMarcado, setPuntoMarcado] = useState(null);
-    const [direccionObtenida, setDirecctionObtenida] = useState('');
-    const [cargandoubicacion, setCargandoUbicacion] = useState(false);
+    const [direccionObtenida, setDireccionObtenida] = useState('');
+    const [cargandoDireccion, setCargandoDireccion] = useState(false);
     const [cargandoGPS, setCargandoGPS] = useState(false);
     const [errorUbicacion, setErrorUbicacion] = useState('');
-    const mapRef = useREf(null);
+    const mapRef = useRef(null);
 
     const updateForm = (key, value) => {   
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
+    const updateMascota = (key, value) => setMascota(prev => ({ ...prev, [key]: value }));
+
     const handleFoto = (e) => {
         const files = Array.from(e.target.files);
         const nuevasFotos = files.map(f => ({ file: f, url: URL.createObjectURL(f) }));
-        setFoto(prev => [...prev, ...nuevaFoto].slice(0,5));
+        setFotos(prev => [...prev, ...nuevasFotos].slice(0,5));
     };
 
     const eliminarFoto = (index) =>{
@@ -66,19 +76,19 @@ export default function CrearPublicacionView() {
     };
     //obetener direccion
     const obtenerDireccion = async (lat, lng) =>{
-        setcargandoDireccion(true);
-        setDirecctionObtenida('');
+        setCargandoDireccion(true);
+        setDireccionObtenida('');
         try {
             const res = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`
             );
             if (!res.ok) throw new Error();
             const data = await res.json();
-            setDirecctionObtenida(data.display_name || 'Dirección no encontrada');
+            setDireccionObtenida(data.display_name || 'Dirección no encontrada');
         } catch {
-            setDirecctionObtenida('no se pudo obtener la dirección');
+            setDireccionObtenida('no se pudo obtener la dirección');
         } finally {
-            setCargandoDiireccion(false);
+            setCargandoDireccion(false);
         }
     };
 
@@ -90,9 +100,9 @@ export default function CrearPublicacionView() {
     };
 
     //geolocalizacion del dispositivo
-    const usarMiubicacion = () =>{
+    const usarMiUbicacion = () =>{
         setErrorUbicacion('');
-        if(!NavigationDestination.gelocation) {
+        if(!navigator.geolocation) {
             setErrorUbicacion('Tu navegador no soporta geolocalizacion');
             return;
         }
@@ -117,7 +127,7 @@ export default function CrearPublicacionView() {
                 setErrorUbicacion(mensajes[err.code] || 'No se pudo obtener la ubicación');
                 setCargandoGPS(false);
             },
-            {enableHighAccuracy: true, timeout: 10000, maximunAge: 0}
+            {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
         );
     };
 
@@ -128,7 +138,7 @@ export default function CrearPublicacionView() {
             alert('Debes seleccionar el tipo de publicación (Perdido / Encontrado)');
             return;
         }
-        if(!tipoMascota){
+        if(!mascota.especie){
             alert('Debes seleccionar el tipo de mascota');
             return;
         }
@@ -139,19 +149,19 @@ export default function CrearPublicacionView() {
 
         try {
             const nuevaPublicacion = {
-                tipoPublicacion,
-                tipoMascota,
-                nombre: form.nombre,
-                especie: form.especie,
-                color: form.color,
-                raza: form.raza,
-                sexo: form.sexo,
-                edad: form.edad,
+                titulo: form.titulo,
                 descripcion: form.descripcion,
-                ubicacion:{
-                    latitud: puntoMarcado[0],
-                    longitud: puntoMarcado[1],
-                    direccion: direccionObtenida,
+                estado: tipoPublicacion,
+                latitud: puntoMarcado[0],
+                longitud: puntoMarcado[1],
+                usuarioId: usuarioId,
+                mascota: {
+                    nombreMascota: mascota.nombreMascota,
+                    especie: mascota.especie,
+                    raza: mascota.raza,
+                    color: mascota.color,
+                    sexo: mascota.sexo,
+                    tamanio: mascota.tamanio,
                 },
             };
 
@@ -173,67 +183,109 @@ export default function CrearPublicacionView() {
                     <label>Tipo de publicación</label>
                     <div className="tipo-row">
                         <button type="button" onClick={()=> setTipoPublicacion('Perdido')}
-                        className={tipoPublicacion === 'perdido' ? 'btn-activo-perdido' : 'btn-inactivo'}>
+                        className={tipoPublicacion === 'Perdido' ? 'btn-activo-perdido' : 'btn-inactivo'}>
                         Perdido</button>
                         <button type="button" onClick={()=> setTipoPublicacion('Encontrado')}
-                        className={tipoPublicacion === 'encontrado' ? 'btn-activo-encontrado' : 'btn-inactivo'}>
+                        className={tipoPublicacion === 'Encontrado' ? 'btn-activo-encontrado' : 'btn-inactivo'}>
                         Encontrado</button>
                     </div>
                 </div>
 
+                {/* Titulo */}
+                <div classname="mb-3">
+                    <label className="form-label fw-semibold">Titulo <span classname= "text-danger">*</span></label>
+                    <input type="text" classname= "form-control" placeholder= "Ej: Gato perdido" c
+                    value={form.titulo} onChange={(e) => updateForm('titulo', e.target.value)} required />
+                </div>
+
                 {/* Tipo de mascota */}
-                <div className="form-group">
-                    <label>Tipo de mascota</label>
-                    <div className="tipo-row">
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Tipo de mascota</label>
+                    <div className="d-flex gap-2">
                         {['Perro', 'Gato', 'Otros'].map(tipo => (
-                            <button key={tipo} type="button" onClick={() => setTipoMascota(tipo)}
-                                className={tipoMascota === tipo.toLowerCase() ? 'btn-activo' : 'btn-inactivo'}>
+                            <button key={tipo} type="button" onClick={() => updateMascota('especie', tipo)}
+                                className={mascota.especie === tipo ? 'btn-activo' : 'btn-inactivo'}>
                                 {tipo}
                             </button>
                         ))}
                     </div>
                 </div>
 
+                {/* Nombre de la mascota */}
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Nombre de la mascota<span className="text-danger">*</span></label>
+                    <input type="text" className= "form-control" placeholder= "Ej: Eddie" value={mascota.nombreMascota} onChange={(e) => updateMascota('nombreMascota', e.target.value)} required />
+                </div>
+
                 {/*Raza */}
-                <div className="form-group">
-                    <label>Raza</label>
-                    <input type="text" placeholder= "Raza  "value={form.raza} onChange={(e) => updateForm('raza', e.target.value)} />
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Raza</label>
+                    <input type="text" placeholder= "Ej: Labrador" className= "form-control" value={mascota.raza} onChange={(e) => updateMascota('raza', e.target.value)} />
+                </div>
+
+                {/*Color */}
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Color<span className="text-danger">*</span></label>
+                    <input type="text" placeholder= "Ej: Negro" className= "form-control" value={mascota.color} onChange={(e) => updateMascota('color', e.target.value)} required />
+                </div>
+
+                {/*Sexo */}
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Sexo<span className="text-danger">*</span></label>
+                    <div className="d-flex gap-2">
+                        {['Macho', 'Hembra'].map(s => (
+                            <button key={s} type="button" onClick={() => updateMascota('sexo', s)}
+                                className={mascota.sexo === s ? 'btn-activo' : 'btn-inactivo'}>
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/*Tamaño */}
+                <div className="mb-3">
+                    <label className="form-label fw-semibold">Tamaño<span className="text-danger">*</span></label>
+                    <div className="d-flex gap-2">
+                        {['Pequeño', 'Mediano', 'Grande'].map(t => (
+                            <button key={t} type="button" onClick={() => updateMascota('tamanio', t)}
+                                className={mascota.tamanio === t ? 'btn-activo' : 'btn-inactivo'}>
+                                {t}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Ubicación con mapa */}
-                <div className="form-group">
-                    <label>Ubicación <span style={{ color: 'red' }}>*</span></label>
-                    <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
-                        Haz clic en el mapa para marcar el lugar, o usa tu ubicación actual.
+                <div className="form-group mb-3">
+                    <label classname ="form-label">Ubicación <span style={{ color: 'red' }}>*</span></label>
+                    <p className= "text-secondary small mb-2">
+                        Haz clic en el mapa para marcar la ubicación, o usa tu ubicación actual.
                     </p>
 
                     <button type="button" onClick={usarMiUbicacion} disabled={cargandoGPS}
-                        style={{ marginBottom: '0.75rem' }}
-                        className={cargandoGPS ? 'btn-inactivo' : 'btn-activo'}>
+                        className ={`mb-2 ${cargandoGPS ? 'btn-inactivo' : 'btn-activo'}`}>
                         {cargandoGPS ? 'Obteniendo ubicación...' : '📍 Usar mi ubicación'}
                     </button>
-
                     {errorUbicacion && (
-                        <p style={{ color: '#c0392b', fontSize: '0.85rem' }}>{errorUbicacion}</p>
+                        <p className= "text-danger small">{errorUbicacion}</p>
                     )}
-
-                    <MapContainer
-                        center={CENTRO_SANTIAGO}
-                        zoom={12}
-                        scrollWheelZoom={true}
-                        style={{ height: '350px', width: '100%', borderRadius: '0.75rem', marginBottom: '0.5rem' }}
-                        ref={mapRef}
-                    >
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <SeleccionarPunto onPuntoSeleccionado={handlePuntoSeleccionado} />
-                        {puntoMarcado && (
-                            <Marker position={puntoMarcado} />
-                        )}
-                    </MapContainer>
-
+                    {/*Margenes del mapa */}
+                    <div style={{ borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                        <MapContainer
+                            center={CENTRO_SANTIAGO}
+                            zoom={12}
+                            scrollWheelZoom={true}
+                            style={{ height: '350px', width: '100%', borderRadius: '0.75rem', marginBottom: '0.5rem' }}
+                            ref={mapRef}
+                        >
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <SeleccionarPunto onPuntoSeleccionado={handlePuntoSeleccionado} />
+                            {puntoMarcado && <Marker position={puntoMarcado} />}
+                        </MapContainer>
+                    </div>
                     {puntoMarcado && (
                         <div style={{ fontSize: '0.85rem', color: '#555', marginBottom: '0.5rem' }}>
                             <strong>Ubicación seleccionada:</strong>{' '}

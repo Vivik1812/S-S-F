@@ -1,24 +1,11 @@
- import axios from 'axios';
- const VITE_API_GW = import.meta.env.VITE_API_GW;
-
- //URL del backend
- const API_URL = `${VITE_API_GW}/api/v1/publicaciones/`;
-
- //instancia de axios
- const apiClient = axios.create({
-     baseURL: API_URL,
-     timeout: 5000,
-     headers: {
-         'Content-Type': 'application/json'
-     }
- });
+import apiGW from "./ApiGateway";
 
  export default class PublicacionService {
 
      //todas las publicaciones
      static async getPublicaciones() {
          try {
-             const response = await apiClient.get('/');
+             const response = await apiGW.get('/api/v1/publicaciones/');
              return response.data;
          } catch (error) {
              console.error('Error al obtener publicaciones:', error);
@@ -29,7 +16,7 @@
      //publicacion por id
      static async getPublicacionById(id) {
          try {
-             const response = await apiClient.get(`/${id}`);
+             const response = await apiGW.get(`/api/v1/publicaciones/${id}`);
              return response.data;
          } catch (error) {
              console.error(`Error al obtener la publicación con id ${id}:`, error);
@@ -40,7 +27,7 @@
      //crear publicacion
      static async createPublicacion(publicacion) {
          try {
-             const response = await apiClient.post('/', publicacion);
+             const response = await apiGW.post('/api/v1/publicaciones/', publicacion);
              return response.data;
          } catch (error) {
              console.error('Error al crear la publicación:', error);
@@ -51,7 +38,7 @@
      //actualizar publicacion
      static async updatePublicacion(id, publicacion) {
          try {
-             const response = await apiClient.put(`/${id}`, publicacion);
+             const response = await apiGW.put(`/api/v1/publicaciones/${id}`, publicacion);
              return response.data;
          } catch (error) {
              console.error(`Error al actualizar la publicación con id ${id}:`, error);
@@ -62,7 +49,7 @@
      //eliminar publicacion
      static async deletePublicacion(id) {
          try {
-             const response = await apiClient.delete(`/${id}`);
+             const response = await apiGW.delete(`/api/v1/publicaciones/${id}`);
              return response.data;
          } catch (error) {
              console.error(`Error al eliminar la publicación con id ${id}:`, error);
@@ -72,7 +59,7 @@
 
      static async filtroPublicaciones(filtros) {
          try {
-             const response = await apiClient.get("/filtro", { params: filtros });
+             const response = await apiGW.get("/api/v1/publicaciones/filtro", { params: filtros });
              return response.data;
          } catch (error) {
              console.error(`Error al filtrar publicaciones:`, error);
