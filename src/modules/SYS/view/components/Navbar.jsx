@@ -1,15 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaPaw } from "react-icons/fa";
-import { FiUser, FiPlus } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import { Autenticado, cerrarSesion } from "../../service/AuthService";
+import NotificacionCampana from "./NotificacionCampana";
 
 export default function Navbar({ variant = "default" }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const autenticado = Autenticado();
-
-  const isActive = (path) => location.pathname === path;
 
   const links = [
     { name: "Inicio", path: "/" },
@@ -18,7 +17,7 @@ export default function Navbar({ variant = "default" }) {
   return (
     <nav className="navbar bg-white shadow-sm px-4 py-3">
       <div
-        className="d-flex aling-items-center gap-2"
+        className="d-flex align-items-center gap-2"
         style={{ cursor: "pointer" }}
         onClick={() => navigate("/")}
       >
@@ -30,21 +29,22 @@ export default function Navbar({ variant = "default" }) {
       </div>
 
       {variant === "default" && (
-        <>
-          <div className="d-flex gap-4">
-            {links.map((link) => (
-              <button
-                key={link.path}
-                className={`btn btn-link text-decoration-none ${location.pathname === link.path ? "text-success fw-bold" : "text-dark"}`}
-                onClick={() => navigate(link.path)}
-              >
-                {link.name}
-              </button>
-            ))}
-          </div>
-        </>
+        <div className="d-flex gap-4">
+          {links.map((link) => (
+            <button
+              key={link.path}
+              className={`btn btn-link text-decoration-none ${
+                location.pathname === link.path ? "text-success fw-bold" : "text-dark"
+              }`}
+              onClick={() => navigate(link.path)}
+            >
+              {link.name}
+            </button>
+          ))}
+        </div>
       )}
-      <div className="d-flex gap-2">
+
+      <div className="d-flex gap-2 align-items-center">
         {!autenticado && (
           <button className="btn" onClick={() => navigate("/login")}>
             Iniciar Sesion
@@ -53,6 +53,7 @@ export default function Navbar({ variant = "default" }) {
 
         {autenticado && (
           <>
+            <NotificacionCampana />
             <button className="btn" onClick={() => navigate("/perfil")}>
               Mi cuenta
             </button>
@@ -63,7 +64,12 @@ export default function Navbar({ variant = "default" }) {
               <FiPlus className="me-2" />
               Crear publicacion
             </button>
-            <button className="btn btn-outline-danger" onClick={() => cerrarSesion()}>Cerrar Sesion</button> 
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => cerrarSesion()}
+            >
+              Cerrar Sesion
+            </button>
           </>
         )}
       </div>

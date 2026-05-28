@@ -1,6 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import NotificacionService from '../../service/NotificacionService';
-import AuthService from '../../service/AuthService';
+import { obtenerToken } from '../../service/AuthService';
+
+function parseJwt(token) {
+    try {
+        return JSON.parse(atob(token.split('.')[1]));
+    } catch {
+        return null;
+    }
+}
 
 export default function NotificacionCampana() {
     const [notificaciones, setNotificaciones] = useState([]);
@@ -9,9 +17,9 @@ export default function NotificacionCampana() {
     const [cargando, setCargando] = useState(false);
     const dropdownRef = useRef(null);
 
-    const token = AuthService.getToken();
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    const usuarioId = usuario?.id;
+    const token = obtenerToken();
+    const payload = token ? parseJwt(token) : null;
+    const usuarioId = payload?.id;
 
     useEffect(() => {
         if (usuarioId && token) {
